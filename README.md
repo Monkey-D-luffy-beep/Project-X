@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TigerOps
 
-## Getting Started
+A secure, role-based **Sales Intelligence & DSR Email Platform** for a freight forwarding company.
 
-First, run the development server:
+Built with Next.js 14, TypeScript, Prisma, and Neon PostgreSQL.
+
+## Features
+
+- **Role-based access** — Admin, Sales Manager, CS Staff with enforced route protection
+- **Sales Portal** — CRUD sales entries, quarterly dashboards, Excel import with column mapping
+- **DSR Module** — Create/edit/send Daily Shipment Reports via email (Resend integration)
+- **Admin Dashboard** — KPI cards, revenue charts, manager leaderboard, user management
+- **Auth** — NextAuth v5 with JWT sessions, forced password change on first login
+- **Responsive** — Mobile sidebar, top header bar, skeleton loading states
+
+## Tech Stack
+
+| Layer | Tech |
+|-------|------|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Database | PostgreSQL (Neon) |
+| ORM | Prisma 6 |
+| Auth | NextAuth.js v5 (beta) |
+| UI | Tailwind CSS + shadcn/ui |
+| Charts | Recharts |
+| Email | Resend + React Email |
+| Excel | SheetJS (xlsx) |
+| Toast | Sonner |
+
+## Local Setup
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm (`npm install -g pnpm`)
+- A PostgreSQL database (e.g., [Neon](https://neon.tech))
+
+### 1. Clone & Install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Monkey-D-luffy-beep/Project-X.git
+cd Project-X
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create `.env.local` in the root:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+DATABASE_URL="postgresql://user:pass@host/dbname?sslmode=require"
+NEXTAUTH_SECRET="your-secret-key-here"
+NEXTAUTH_URL="http://localhost:3000"
+RESEND_API_KEY="re_xxxxxxxxxxxx"
+```
 
-## Learn More
+Create `prisma/.env`:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+DATABASE_URL="postgresql://user:pass@host/dbname?sslmode=require"
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Database Setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npx prisma db push      # Create tables
+npx prisma db seed       # Seed users (1 admin + 14 sales managers + 3 CS staff)
+```
 
-## Deploy on Vercel
+### 4. Run
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000)
+
+### Default Login Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@tigerops.in | Admin@123 |
+| Sales Manager | rakhi@tigerops.in | Tiger@2025 |
+| CS Staff | cs1.rakhi@tigerops.in | Tiger@2025 |
+
+> All users have `mustChangePassword: true` by default (except admin). They'll be forced to set a new password on first login.
+
+## Project Structure
+
+```
+app/
+├── (auth)/              # Login & change-password pages
+├── dashboard/           # Protected dashboard routes
+│   ├── admin/           # Admin dashboard + user management
+│   ├── dsr/             # DSR list, create, edit
+│   └── sales/           # Sales dashboard + Excel import
+├── api/                 # API routes
+│   ├── admin/           # Dashboard & user CRUD
+│   ├── auth/            # NextAuth + password change
+│   ├── dsr/             # DSR CRUD + send email
+│   └── sales/           # Sales entry CRUD + batch import
+components/              # Shared UI components
+prisma/                  # Schema + seed
+```
+
+## Build
+
+```bash
+npx next build
+```

@@ -1,0 +1,104 @@
+// Prisma schema for TigerOps
+// Models: User, QuarterlyReport, ShipmentLineItem, DSR
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  admin
+  sales_manager
+  cs_staff
+}
+
+enum RowType {
+  actual
+  projection
+  pipeline
+}
+
+model User {
+  id                 String            @id @default(uuid())
+  name               String
+  email              String            @unique
+  passwordHash       String
+  role               Role
+  managerId          String?
+  manager            User?             @relation("ManagerStaff", fields: [managerId], references: [id])
+  staff              User[]            @relation("ManagerStaff")
+  isActive           Boolean           @default(true)
+  mustChangePassword Boolean           @default(false)
+  reports            QuarterlyReport[]
+  dsrs               DSR[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@map("users")
+}
+
+model QuarterlyReport {
+  id          String             @id @default(uuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id])
+  quarter     String             // e.g. "Q2-FY2025"
+  quarterType RowType
+  isLocked    Boolean            @default(false)
+  lineItems   ShipmentLineItem[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@unique([userId, quarter, quarterType])
+  @@map("quarterly_reports")
+}
+
+model ShipmentLineItem {
+  id               String          @id @default(uuid())
+  reportId         String
+  report           QuarterlyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  srNo             Int
+  shipperName      String
+  quarterLabel     String          // e.g. "July-Sep", "Oct-Dec"
+  teuQty           String          // String: handles "30-40", "Break Bulk", "LCL", "2000 KGS"
+  revenueInr       BigInt          // Stored in paise (rupees × 100)
+  profitabilityPct Decimal         @db.Decimal(6, 4) // 0.1600 = 16%
+  profitInr        BigInt          // Calculated: revenueInr × profitabilityPct
+  rowType          RowType
+  notes            String?
+  createdAt        DateTime        @default(now())
+
+  @@map("shipment_line_items")
+}
+
+model DSR {
+  id           String    @id @default(uuid())
+  createdBy    String
+  creator      User      @relation(fields: [createdBy], references: [id])
+  sNo          String
+  trlNo        String
+  shipperName  String
+  shippingLine String
+  mbl          String    // Master Bill of Lading
+  hbl          String    // House Bill of Lading
+  shipmentType String    // SEA / AIR / LCL
+  cntrQty      String
+  cntrType     String    // 40HC, 20ft, etc.
+  pol          String    // Port of Loading
+  pod          String    // Port of Discharge
+  fpod         String    // Final Place of Delivery
+  etdPoi       DateTime  // ETD Port of Issue
+  etaPod       DateTime  // ETA Port of Discharge
+  bro          String
+  broReceived  Boolean   @default(false)
+  jobStatus    String    // JOB CLOSED, IN TRANSIT, etc.
+  clientEmail  String
+  sentAt       DateTime? // null = draft, set = sent
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("dsrs")
+}
