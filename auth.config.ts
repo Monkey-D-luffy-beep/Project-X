@@ -21,6 +21,7 @@ declare module "next-auth" {
 // Edge-safe config — NO Prisma / bcrypt imports
 // Used by middleware for JWT reading only
 export default {
+  trustHost: true,
   pages: {
     signIn: "/login",
   },
