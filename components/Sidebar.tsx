@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -11,6 +12,7 @@ import {
   Users,
   X,
   FilePlus,
+  FileBarChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -47,6 +49,12 @@ const navItems: NavItem[] = [
     href: "/dashboard/sales/import",
     icon: Upload,
     roles: ["sales_manager"],
+  },
+  {
+    label: "Sales Report",
+    href: "/dashboard/sales/report",
+    icon: FileBarChart,
+    roles: ["sales_manager", "admin"],
   },
   {
     label: "DSR Reports",
@@ -98,7 +106,13 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             className="flex items-center gap-2"
             onClick={onClose}
           >
-            <span className="text-2xl">🐯</span>
+            <Image
+              src="/logo.webp"
+              alt="TigerOps"
+              width={36}
+              height={36}
+              className="rounded"
+            />
             <span className="font-bold text-lg">TigerOps</span>
           </Link>
           <Button

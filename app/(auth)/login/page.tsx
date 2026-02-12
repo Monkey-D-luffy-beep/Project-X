@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
@@ -54,8 +55,15 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1 text-center">
-        <div className="flex items-center justify-center mb-2">
-          <span className="text-4xl">🐯</span>
+        <div className="flex items-center justify-center mb-4">
+          <Image
+            src="/logo.webp"
+            alt="TigerOps"
+            width={80}
+            height={80}
+            className="rounded-lg"
+            priority
+          />
         </div>
         <CardTitle className="text-2xl">TigerOps</CardTitle>
         <CardDescription>
